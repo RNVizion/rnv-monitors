@@ -1,0 +1,16 @@
+{
+  "name": "rnv-monitors",
+  "private": true,
+  "description": "Monitoring as code for rnvizion.dev, run by Checkly.",
+  "scripts": {
+    "check": "checkly test",
+    "sabotage": "checkly test -e SABOTAGE=1",
+    "deploy": "checkly deploy"
+  },
+  "devDependencies": {
+    "checkly": "^9.5.0"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  }
+}
