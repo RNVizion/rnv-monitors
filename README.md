@@ -29,6 +29,8 @@ The same spec, run in Chromium against local stand-ins for the site (a fresh clo
 
 Under the `SABOTAGE=1` condition, the old call still returns `true` while Chrome paints the mark in a system font. The Checkly CLI’s own parser loads this project as one browser check, hourly, from `us-east-1`.
 
+Then on Checkly itself, against the live site from `us-east-1`: `npx checkly test` passed, and `npx checkly test -e SABOTAGE=1` failed at step 2 with “the page declares a Montserrat 900 face”.
+
 ## Run it
 
 You need a Checkly account (the free Hobby plan takes no card) and Node 22.13 or newer.
@@ -52,9 +54,9 @@ You need a Checkly account (the free Hobby plan takes no card) and Node 22.13 or
 
 Shortcuts: `npm run check`, `npm run sabotage`, `npm run deploy`.
 
-## If step 3 errors
+## Step 3 on Checkly’s runtime
 
-Step 3 asks Chrome, over the DevTools Protocol, which font it painted. It works in Playwright’s Chromium; whether Checkly’s runtime allows it wasn’t confirmed before shipping. If step 3 fails with a protocol error instead of a font name, that’s the runtime, not the site: note it below and delete step 3.
+Step 3 asks Chrome, over the DevTools Protocol, which font it painted. Checkly’s runtime allows it: the first live run passed all three steps on runtime 2026.04.
 
 ## Cost
 
