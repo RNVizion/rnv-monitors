@@ -66,4 +66,6 @@ Hourly from one location comes to about 720 browser-check runs a month; the Hobb
 
 What got in the way during setup, written down as it happened.
 
--
+- **No zip upload from a phone.** I couldn’t upload a zip into a Codespace from my phone, so the project went in as one pasted script that writes every file and checks each one against the tested version by hash.
+- **The trial turns into a Hobby account.** After 14 days without an upgrade, the trial becomes the free Hobby plan; the pricing page didn’t say so as of September 2026.
+- **A failure pointed into Checkly’s runtime.** The stack trace named `vm2/lib/bridge.js` and called the spec `test.spec.js`, so the step names and assertion messages had to carry the meaning on their own.
