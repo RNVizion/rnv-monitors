@@ -1,0 +1,71 @@
+name: monitor
+
+on:
+  schedule:
+    - cron: "7,37 * * * *" # every 30 minutes, off the hour; GitHub may start it late
+  workflow_dispatch:
+    inputs:
+      sabotage_probe:
+        description: "Sabotage run: the id of a probe in probes.json to give a wrong expectation (leave blank for a normal run)"
+        default: ""
+
+# No secrets live here. The token may write two things: the status branch and
+# this repository's issues. Actions are pinned to major versions; pin them to
+# full commit SHAs the day a secret is added.
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: monitor
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install
+        run: pip install -r requirements.txt
+      - name: Probe every surface
+        id: probe
+        env:
+          SABOTAGE_PROBE: ${{ inputs.sabotage_probe }}
+        run: |
+          MAIN_COMMIT_DATE="$(git log -1 --format=%cI)"
+          export MAIN_COMMIT_DATE
+          set +e
+          python monitor.py --status status.json --report report.txt
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+      - name: Publish status.json to the status branch
+        # A sabotage run proves the alert path, not the state: it never becomes the published status.
+        if: always() && steps.probe.outputs.code != '2' && steps.probe.outputs.code != '' && inputs.sabotage_probe == ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          dir="$RUNNER_TEMP/status"
+          mkdir -p "$dir"
+          cp status.json report.txt "$dir/"
+          cd "$dir"
+          git init -q -b status
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add status.json report.txt
+          git commit -q -m "status: $(jq -r .overall status.json) at $(jq -r .checked_at status.json)"
+          git push -q --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" status:status
+      - name: Open, update or close the alert issues
+        if: always() && steps.probe.outputs.code != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/issues.sh "${{ steps.probe.outputs.code }}" report.txt
+      - name: Fail the run unless every probe agreed
+        if: always()
+        run: |
+          code="${{ steps.probe.outputs.code }}"
+          echo "monitor exit code: ${code:-none}"
+          [ "$code" = "0" ]

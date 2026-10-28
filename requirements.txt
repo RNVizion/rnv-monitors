@@ -1,0 +1,3 @@
+requests==2.34.2
+# The brand register, pinned by commit: the color server's expected answer is read from it, never typed.
+rnv-brand @ git+https://github.com/RNVizion/rnv-brand@858e63c0b3dd406b00a41dda9d9256091fcdeb85

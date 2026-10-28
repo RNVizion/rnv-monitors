@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest==9.1.1
+# The color server's own version, so the tests' stand-in speaks exactly what production speaks.
+fastmcp==3.4.7

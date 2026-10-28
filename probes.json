@@ -1,0 +1,59 @@
+{
+  "about": "Every RNVizion surface that must answer, and what a correct answer is. The one definition of each probe: rnv-monitors runs them on a schedule, and anything else that wants the same check (the RNV Dashboard) reads this file rather than writing its own.",
+  "controls": {
+    "github-pages": "https://pages.github.com/",
+    "hf-spaces": "https://black-forest-labs-flux-1-schnell.hf.space/"
+  },
+  "probes": [
+    {
+      "id": "site-home",
+      "what": "rnvizion.dev answers",
+      "kind": "http",
+      "url": "https://rnvizion.dev/",
+      "expect_status": 200,
+      "platform": "github-pages"
+    },
+    {
+      "id": "site-card",
+      "what": "the contact card answers (it is printed and handed to people)",
+      "kind": "http",
+      "url": "https://rnvizion.dev/card/",
+      "expect_status": 200,
+      "platform": "github-pages"
+    },
+    {
+      "id": "color-mcp-glama",
+      "what": "the color server is up and its Glama claim is served",
+      "kind": "http",
+      "url": "https://rnvizion-rnv-color-mcp.hf.space/.well-known/glama.json",
+      "expect_status": 200,
+      "platform": "hf-spaces"
+    },
+    {
+      "id": "color-mcp-auth-off",
+      "what": "the color server's auth is off in production, as decided",
+      "kind": "http",
+      "url": "https://rnvizion-rnv-color-mcp.hf.space/.well-known/oauth-protected-resource/mcp",
+      "expect_status": 404,
+      "platform": "hf-spaces"
+    },
+    {
+      "id": "color-mcp-brand-gold",
+      "what": "the color server answers a question with a known answer",
+      "kind": "mcp_tool",
+      "url": "https://rnvizion-rnv-color-mcp.hf.space/mcp",
+      "tool": "convert_color",
+      "arguments": {"color": "brand gold", "to": "rgb"},
+      "expect_brand": {"color": "brand gold", "format": "rgb"},
+      "platform": "hf-spaces"
+    },
+    {
+      "id": "ask-the-corpus",
+      "what": "the Ask the Corpus demo answers",
+      "kind": "http",
+      "url": "https://rnvizion-ask-the-corpus.hf.space/",
+      "expect_status": 200,
+      "platform": "hf-spaces"
+    }
+  ]
+}

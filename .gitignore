@@ -1,3 +1,9 @@
+__pycache__/
+.pytest_cache/
+.venv/
+status.json
+report.txt
+# Left over from the Checkly years; kept so a local node_modules or .env can never be committed.
 node_modules/
 .env
 test-results/
