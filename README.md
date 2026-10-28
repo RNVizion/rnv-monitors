@@ -30,7 +30,7 @@ The run exits like `rnv-brand`'s checker: **0** every probe agrees · **1** some
 ## What a run leaves behind
 
 - **`status.json` on the `status` branch,** overwritten each run, readable without a token at `https://raw.githubusercontent.com/RNVizion/rnv-monitors/status/status.json`. It carries `checked_at`, so a reader can tell a fresh answer from a stale one: **a status older than about two hours should be read as unknown,** because a schedule that stopped running looks exactly like one that last saw everything fine.
-- **Two issues:** `monitor-down` opens on exit 1 and `monitor-coverage` on exit 3; both close when every probe agrees again. Opening one emails you; updates during an outage edit the body silently, so an outage is one email when it starts and one when it ends. Exit 2 touches nothing.
+- **Two issues:** `monitor-down` opens on exit 1 and `monitor-coverage` on exit 3; both close when every probe agrees again. Opening one emails you only if you watch this repository (Watch → Custom → Issues): the bot opens issues as itself, so without a watch the issue opens in silence, as the first sabotage run on 2026-10-28 proved. Updates during an outage edit the body silently, so an outage is one email when it starts and one when it ends. Exit 2 touches nothing.
 - **Run history** in Actions.
 
 ## How it proves it can fail
