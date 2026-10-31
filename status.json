@@ -1,0 +1,64 @@
+{
+  "checked_at": "2026-10-31T17:55:14+00:00",
+  "overall": "agrees",
+  "exit_code": 0,
+  "probes": [
+    {
+      "id": "site-home",
+      "what": "rnvizion.dev answers",
+      "url": "https://rnvizion.dev/",
+      "state": "agrees",
+      "detail": "HTTP 200",
+      "ms": 237
+    },
+    {
+      "id": "site-card",
+      "what": "the contact card answers (it is printed and handed to people)",
+      "url": "https://rnvizion.dev/card/",
+      "state": "agrees",
+      "detail": "HTTP 200",
+      "ms": 136
+    },
+    {
+      "id": "color-mcp-glama",
+      "what": "the color server is up and its Glama claim is served",
+      "url": "https://rnvizion-rnv-color-mcp.hf.space/.well-known/glama.json",
+      "state": "agrees",
+      "detail": "HTTP 200",
+      "ms": 259
+    },
+    {
+      "id": "color-mcp-auth-off",
+      "what": "the color server's auth is off in production, as decided",
+      "url": "https://rnvizion-rnv-color-mcp.hf.space/.well-known/oauth-protected-resource/mcp",
+      "state": "agrees",
+      "detail": "HTTP 404",
+      "ms": 243
+    },
+    {
+      "id": "color-mcp-brand-gold",
+      "what": "the color server answers a question with a known answer",
+      "url": "https://rnvizion-rnv-color-mcp.hf.space/mcp",
+      "state": "agrees",
+      "detail": "convert_color answered [210, 188, 147], as rnv-brand holds",
+      "ms": 425
+    },
+    {
+      "id": "ask-the-corpus",
+      "what": "the Ask the Corpus demo answers",
+      "url": "https://rnvizion-ask-the-corpus.hf.space/",
+      "state": "agrees",
+      "detail": "HTTP 200",
+      "ms": 482
+    }
+  ],
+  "controls": {},
+  "sabotage": null,
+  "rnv_brand": "47.0.0",
+  "fuse": {
+    "last_main_commit": "2026-10-27T22:10:41-04:00",
+    "days_since": 3,
+    "warn_after_days": 45
+  },
+  "run_url": "https://github.com/RNVizion/rnv-monitors/actions/runs/41226831125"
+}

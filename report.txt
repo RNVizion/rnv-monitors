@@ -1,0 +1,8 @@
+rnv-monitors at 2026-10-31T17:55:14+00:00: AGREES (exit 0)
+  agrees     site-home              HTTP 200
+  agrees     site-card              HTTP 200
+  agrees     color-mcp-glama        HTTP 200
+  agrees     color-mcp-auth-off     HTTP 404
+  agrees     color-mcp-brand-gold   convert_color answered [210, 188, 147], as rnv-brand holds
+  agrees     ask-the-corpus         HTTP 200
+Run: https://github.com/RNVizion/rnv-monitors/actions/runs/41226831125
