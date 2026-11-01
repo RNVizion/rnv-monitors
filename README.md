@@ -1,6 +1,6 @@
 # rnv-monitors
 
-Does everything RNVizion has told people about answer right now? Every 30 minutes, GitHub Actions checks each public surface from outside, opens an issue when one is down, and publishes the answer as `status.json` for the RNV Dashboard to read.
+Does everything RNVizion has told people about answer right now? On a schedule of every 30 minutes, which GitHub starts 3 to 5 times a day, GitHub Actions checks each public surface from outside, opens an issue when one is down, and publishes the answer as `status.json` for the RNV Dashboard to read.
 
 It checks whether things **answer**. Whether they are **right** is [rnv-site-tests](https://github.com/RNVizion/rnv-site-tests)' job.
 
@@ -29,18 +29,18 @@ The run exits like `rnv-brand`'s checker: **0** every probe agrees · **1** some
 
 ## What a run leaves behind
 
-- **`status.json` on the `status` branch,** overwritten each run, readable without a token at `https://raw.githubusercontent.com/RNVizion/rnv-monitors/status/status.json`. It carries `checked_at`, so a reader can tell a fresh answer from a stale one: **a status older than about two hours should be read as unknown,** because a schedule that stopped running looks exactly like one that last saw everything fine.
+- **`status.json` on the `status` branch,** overwritten each run, readable without a token at `https://raw.githubusercontent.com/RNVizion/rnv-monitors/status/status.json`. It carries `checked_at`, so a reader can tell a fresh answer from a stale one, and **`stale_after_minutes`, the age past which a reader should call the status unknown,** because a schedule that stopped running looks exactly like one that last saw everything fine. The window is `STALE_AFTER_MINUTES` in `monitor.py`, published so no reader keeps a number of its own. *Until 1 November 2026 this said two hours; GitHub starts the schedule 3 to 5 times a day (20 runs from 28 October to 1 November, gaps of 3 to 7.5 hours), so a two-hour window read unknown most of the time while every probe agreed. The window is now nine hours.*
 - **Two issues:** `monitor-down` opens on exit 1 and `monitor-coverage` on exit 3; both close when every probe agrees again. Opening one emails you only if you watch this repository (Watch → Custom → Issues): the bot opens issues as itself, so without a watch the issue opens in silence, as the first sabotage run on 2026-10-28 proved. Updates during an outage edit the body silently, so an outage is one email when it starts and one when it ends. Exit 2 touches nothing.
 - **Run history** in Actions.
 
 ## How it proves it can fail
 
-- **19 tests against local stand-ins,** no network: a small web server, and a stand-in color server on the production stack (FastMCP 3.4.7, Streamable HTTP). Each state and each exit code is produced on purpose, including a wrong MCP answer, an outage with the control up, and a control answering 5xx.
+- **21 tests against local stand-ins,** no network: a small web server, and a stand-in color server on the production stack (FastMCP 3.4.7, Streamable HTTP). Each state and each exit code is produced on purpose, including a wrong MCP answer, an outage with the control up, and a control answering 5xx.
 - **Sabotage runs:** Actions → *monitor* → *Run workflow*, with a probe's id in **sabotage_probe**. That probe gets a wrong expectation, so the run must go red and open `monitor-down`, which emails you. That proves the alert reaches you. A sabotage run is never published as the status, and the next scheduled run closes the issue, which proves the recovery path too. A sabotage naming no real probe is refused, never run clean.
 
 ## Limits, stated
 
-- **Scheduled runs can start late,** and GitHub disables a public repository's schedules after 60 days without activity. Each status records how old `main`'s last commit is, and the report warns from day 45; any commit to `main` resets it. The dashboard's staleness rule above is the backstop.
+- **Scheduled runs start late or not at all:** GitHub drops most of them, so a published status is usually hours old. For a status minutes old, run `python monitor.py --json` on the PC; the RNV Dashboard does this with `feeds surfaces --now`. GitHub also disables a public repository's schedules after 60 days without activity. Each status records how old `main`'s last commit is, and the report warns from day 45; any commit to `main` resets it. The dashboard's staleness rule above is the backstop.
 - **The controls are other people's pages:** `pages.github.com` for GitHub Pages, and a popular public Space for Hugging Face. If a control disappears, its probes read unknown, never falsely down. Replace it in `probes.json`.
 
 ## Run it
@@ -50,6 +50,7 @@ python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\act
 pip install -r requirements-dev.txt
 python -m pytest -v          # the monitor's own tests
 python monitor.py            # probe the live surfaces once; writes status.json and report.txt
+python monitor.py --json     # probe once, print the status as JSON, write nothing (the dashboard's on-demand check)
 ```
 
 ## History

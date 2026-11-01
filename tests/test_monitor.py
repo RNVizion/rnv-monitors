@@ -200,3 +200,25 @@ def test_main_writes_status_and_report(tmp_path, web):
     status = json.loads((tmp_path / "s.json").read_text())
     assert code == 0 and status["overall"] == "agrees" and status["checked_at"] and status["rnv_brand"]
     assert "AGREES" in (tmp_path / "r.txt").read_text()
+
+
+def test_status_publishes_its_own_staleness_window(tmp_path, web):
+    path = tmp_path / "probes.json"
+    path.write_text(json.dumps(config(web, [http_probe("a", web + "/ok")])))
+    monitor.main(["--probes", str(path), "--status", str(tmp_path / "s.json"), "--report", str(tmp_path / "r.txt")])
+    status = json.loads((tmp_path / "s.json").read_text())
+    assert status["stale_after_minutes"] == monitor.STALE_AFTER_MINUTES
+    assert isinstance(monitor.STALE_AFTER_MINUTES, int) and monitor.STALE_AFTER_MINUTES > 0
+
+
+def test_json_mode_prints_the_status_and_writes_nothing(tmp_path, web, capsys, monkeypatch):
+    path = tmp_path / "probes.json"
+    path.write_text(json.dumps(config(web, [http_probe("a", web + "/ok"), http_probe("b", web + "/boom")])))
+    monkeypatch.chdir(tmp_path)
+    code = monitor.main(["--probes", str(path), "--json"])
+    out = capsys.readouterr()
+    status = json.loads(out.out)
+    assert code == 1 and status["overall"] == "disagrees" and status["exit_code"] == 1
+    assert [p["state"] for p in status["probes"]] == ["agrees", "disagrees"]
+    assert "DISAGREES" in out.err
+    assert sorted(x.name for x in tmp_path.iterdir()) == ["probes.json"]

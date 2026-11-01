@@ -21,6 +21,11 @@ Expected answers are read, never typed: the color server's probe expects the
 value rnv-brand's register holds for that color, at the pinned commit.
 
 Run:  python monitor.py [--probes probes.json] [--status status.json] [--report report.txt]
+      python monitor.py --json     probe once, print the status as JSON, write no file
+
+--json is the on-demand check: the RNV Dashboard runs it on Chris's PC for a status
+that is minutes old rather than hours, from these same probes, and publishes
+nothing. The report goes to stderr so stdout is the JSON alone.
 """
 from __future__ import annotations
 
@@ -38,6 +43,15 @@ UA = "rnv-monitors (+https://github.com/RNVizion/rnv-monitors)"
 KINDS = {"http", "mcp_tool"}
 EXIT = {"clean": 0, "disagrees": 1, "could_not_run": 2, "incomplete": 3}
 FUSE_WARN_DAYS = 45  # GitHub disables a public repo's schedules after 60 idle days
+#: How old a published status may get before a reader should call it unknown.
+#: The schedule asks for every 30 minutes; GitHub starts it 3 to 5 times a day.
+#: Measured 28 October to 1 November 2026: 20 runs, gaps of 2.99 to 7.48 hours,
+#: median 5.89, every run successful, so the scheduler drops runs rather than the
+#: workflow failing them. Nine hours is the longest gap seen plus a margin: a
+#: status older than this means the schedule has stopped, not that it is slow.
+#: Published in status.json so the reader takes the window from here, never from
+#: a number of its own.
+STALE_AFTER_MINUTES = 540
 
 
 class NoAnswer(Exception):
@@ -275,6 +289,8 @@ def main(argv=None) -> int:
     ap.add_argument("--probes", default="probes.json")
     ap.add_argument("--status", default="status.json")
     ap.add_argument("--report", default="report.txt")
+    ap.add_argument("--json", action="store_true",
+                    help="print the status as JSON on stdout and the report on stderr; write no file")
     args = ap.parse_args(argv)
     try:
         status = run(load(args.probes), sabotage=os.environ.get("SABOTAGE_PROBE") or None)
@@ -292,8 +308,13 @@ def main(argv=None) -> int:
         "rnv_brand": brand_version(),
         "fuse": fuse(os.environ.get("MAIN_COMMIT_DATE")),
         "run_url": f"{server}/{repo}/actions/runs/{run_id}" if server and repo and run_id else None,
+        "stale_after_minutes": STALE_AFTER_MINUTES,
     }
     text = report_text(status)
+    if args.json:
+        print(text, end="", file=sys.stderr)
+        print(json.dumps(status, indent=2))
+        return status["exit_code"]
     print(text, end="")
     with open(args.status, "w", encoding="utf-8") as f:
         json.dump(status, f, indent=2)
