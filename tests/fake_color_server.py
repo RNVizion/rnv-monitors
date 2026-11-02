@@ -10,7 +10,7 @@ import sys
 
 from fastmcp import FastMCP
 
-from engine.brand import RNV_BRAND
+from rnv_brand.brand import RNV_BRAND
 
 mcp = FastMCP("fake-rnv-color")
 

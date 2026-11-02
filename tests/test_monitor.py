@@ -17,7 +17,7 @@ from pathlib import Path
 import pytest
 
 import monitor
-from engine.brand import RNV_BRAND
+from rnv_brand.brand import RNV_BRAND
 
 HERE = Path(__file__).parent
 REPO = HERE.parent

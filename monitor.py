@@ -70,7 +70,7 @@ class ConfigError(Exception):
 
 def expected_from_brand(spec: dict):
     """The value the brand register holds, in the requested format."""
-    from engine.brand import RNV_BRAND  # rnv-brand, pinned in requirements.txt
+    from rnv_brand.brand import RNV_BRAND  # rnv-brand, pinned in requirements.txt
 
     try:
         hex_value = RNV_BRAND[spec["color"]].lstrip("#").lower()
